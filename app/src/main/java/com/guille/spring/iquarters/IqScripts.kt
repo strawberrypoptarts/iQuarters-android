@@ -1,0 +1,105 @@
+package com.guille.spring.iquarters
+
+import com.guille.spring.iquarters.scripts.*
+
+/**
+ * Every MonoBehaviour class the two scenes attach, by its C# name, and every class whose
+ * static fields [IqStatics] resets when a runtime starts. A class the pack names that is
+ * not here is skipped when the scene loads (`IqRuntimeTest` checks that none is).
+ */
+internal object IqScripts {
+    private val factories: Map<String, () -> Behaviour> = mapOf(
+        "About" to ::About,
+        "AngleAdjustScript" to ::AngleAdjustScript,
+        "AnnouncerScript" to ::AnnouncerScript,
+        "AreYouSure" to ::AreYouSure,
+        "BackClearButtons" to ::BackClearButtons,
+        "BirdScript" to ::BirdScript,
+        "CoinHolder" to ::CoinHolder,
+        "CoinsLeft" to ::CoinsLeft,
+        "CrowdScript" to ::CrowdScript,
+        "GameHighScreen" to ::GameHighScreen,
+        "GameManagerScript" to ::GameManagerScript,
+        "GameOrRoundButtons" to ::GameOrRoundButtons,
+        "GameOver" to ::GameOver,
+        "GlassScaleController" to ::GlassScaleController,
+        "Help" to ::Help,
+        "HiScoreRoundScript" to ::HiScoreRoundScript,
+        "HiScoreScript" to ::HiScoreScript,
+        "InGameAngleIcon" to ::InGameAngleIcon,
+        "InGameHiScore" to ::InGameHiScore,
+        "IntroCamScript" to ::IntroCamScript,
+        "LauncherScript" to ::LauncherScript,
+        "LazySusanGlassShadow" to ::LazySusanGlassShadow,
+        "LighterScript" to ::LighterScript,
+        "lightray" to ::lightray,
+        "Logo" to ::Logo,
+        "MainCameraScript" to ::MainCameraScript,
+        "mainmenu" to ::mainmenu,
+        "PauseButtonScript" to ::PauseButtonScript,
+        "PauseMenu" to ::PauseMenu,
+        "PowerX" to ::PowerX,
+        "PracticeGreatScore" to ::PracticeGreatScore,
+        "PracticeUI" to ::PracticeUI,
+        "QuarterTrigger" to ::QuarterTrigger,
+        "ReplayCameraScript" to ::ReplayCameraScript,
+        "ReplayController" to ::ReplayController,
+        "RicochetExciter" to ::RicochetExciter,
+        "RoundComplete" to ::RoundComplete,
+        "RoundHighScreen" to ::RoundHighScreen,
+        "RoundIndicator" to ::RoundIndicator,
+        "SaveReplayButtons" to ::SaveReplayButtons,
+        "SecretRound" to ::SecretRound,
+        "ShadowQuarterScript" to ::ShadowQuarterScript,
+        "ShotTypeHelper" to ::ShotTypeHelper,
+        "spotdirScript" to ::spotdirScript,
+        "SpotlightScript" to ::SpotlightScript,
+        "StatsScreen" to ::StatsScreen,
+        "Streak" to ::Streak,
+        "UIPlayer" to ::UIPlayer,
+    )
+
+    private val statics: List<IqStatic> = listOf(
+        About,
+        AnnouncerScript,
+        AreYouSure,
+        BackClearButtons,
+        BirdScript,
+        CoinHolder,
+        CoinsLeft,
+        CrowdScript,
+        GameHighScreen,
+        GameManagerScript,
+        GameOrRoundButtons,
+        GameOver,
+        GlassScaleController,
+        HiScoreRoundScript,
+        HiScoreScript,
+        InGameAngleIcon,
+        InGameHiScore,
+        lightray,
+        Logo,
+        mainmenu,
+        PauseMenu,
+        PowerX,
+        PracticeGreatScore,
+        PracticeUI,
+        QuarterTrigger,
+        ReplayCameraScript,
+        ReplayController,
+        RicochetExciter,
+        RoundComplete,
+        RoundHighScreen,
+        RoundIndicator,
+        SecretRound,
+        ShotTypeHelper,
+        spotdirScript,
+        StatsScreen,
+        Streak,
+        UIPlayer,
+    )
+
+    fun create(className: String): Behaviour? = factories[className]?.invoke()
+
+    fun registerStatics() { for (s in statics) IqStatics.register(s) }
+}

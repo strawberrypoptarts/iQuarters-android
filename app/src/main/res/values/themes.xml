@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The launcher's bezel fill (Theme.Spring's spring_backdrop), so the frame around the
+         panel is the same from the first frame. -->
+    <color name="bezel">#FF080808</color>
+    <style name="Theme.IQuarters" parent="@android:style/Theme.NoTitleBar.Fullscreen">
+        <item name="android:windowBackground">@color/bezel</item>
+    </style>
+</resources>

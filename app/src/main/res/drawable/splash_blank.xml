@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty, as in the launcher: the first thing on screen is Default.png in the panel,
+     the way SpringBoard showed it, not Android's own icon splash. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@android:color/transparent" />
+</shape>
