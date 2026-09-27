@@ -2,11 +2,11 @@
 
 The original iQuarters game, reconstructed for Android from the supplied Kotlin source and recovered game assets. Includes the original 12 rounds, secret round, scoring effects, replays, and animated menus.
 
-## Version 1.0
+## Version 1.0.1
 
-Download the APK from **[Releases](https://github.com/strawberrypoptarts/iQuarters-android/releases/tag/v1.0)** and sideload it.
+Download the APK from **[Releases](https://github.com/strawberrypoptarts/iQuarters-android/releases/tag/v1.0.1)** and sideload it.
 
-This release uses the same blue quarter icon as the base iOS edition. Gameplay is unchanged from the previously supplied Android testing build. Version code 3 allows an update over version code 2 when signed with the same key.
+This release uses the same blue quarter icon as the base iOS edition. Gameplay is unchanged from the previously supplied Android testing build. Adaptive-icon padding keeps the complete artwork inside Android’s mask. Version code 4 allows an update over version codes 2 and 3 when signed with the same key.
 
 - Android 4.4 / API 19 minimum; targets Android 15 / API 35.
 - Native device resolution, touch-rate-independent flicks, and adapted menus.
