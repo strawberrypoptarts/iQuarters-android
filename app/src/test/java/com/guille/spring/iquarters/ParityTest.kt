@@ -36,6 +36,31 @@ class ParityTest {
             assertTrue(v.uiWidth<=w);assertTrue(v.uiHeight<=h)
         }
     }
+    @Test fun expandedScreensDoNotExposeOffStageMenuArt() {
+        for ((w,h) in listOf(320 to 480, 600 to 1024, 1080 to 2400, 1080 to 2520,
+                1536 to 2048, 2560 to 1600, 1081 to 2401)) {
+            val v = IqViewport(w,h)
+            val clip = v.clip()
+            // The hidden score logo/name banner live above the original 480-point stage.
+            val hiddenBannerY = v.bottom + 500f * v.scale
+            assertTrue(hiddenBannerY >= clip.bottom + clip.height)
+            assertTrue(v.bottom + 240f * v.scale < clip.bottom + clip.height)
+            for (anchor in IqViewport.Anchor.values()) {
+                val c = v.clip(anchor)
+                assertTrue(c.left >= 0 && c.bottom >= 0)
+                assertTrue(c.left + c.width <= w && c.bottom + c.height <= h)
+                assertEquals(v.uiWidth, c.width)
+                assertEquals(v.uiHeight, c.height)
+            }
+            assertEquals(0, v.clip(IqViewport.Anchor.TOP_LEFT).left)
+            assertEquals(0, v.clip(IqViewport.Anchor.BOTTOM_RIGHT).bottom)
+            assertTrue(h - (v.clip(IqViewport.Anchor.TOP).bottom + v.uiHeight) <= 1)
+        }
+        assertNull(IqViewport.anchor("ui_quarter_logo_score"))
+        assertEquals(IqViewport.Anchor.TOP_RIGHT, IqViewport.anchor("ex_round_mon"))
+        assertTrue(IqViewport.fullScreenBackground("BackDrop"))
+        assertFalse(IqViewport.fullScreenBackground("ui_quarter_logo_score"))
+    }
     @Test fun cameraLookRemovesRollAfterSmoothing() {
         var q=Quat.IDENTITY
         for(i in 0..300) {

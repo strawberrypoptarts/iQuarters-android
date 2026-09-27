@@ -28,3 +28,10 @@ Release APK build and Android lint completed successfully. Fifteen JVM tests pas
 No Android device or emulator was connected. Fire 7 (2019) launch, actual GPU rendering, audio output, and sustained frame rate remain unverified. This is a sideload testing build; full visual/physical-device parity is not yet established. Android 4.4 is the declared minimum and passes the API audit, not a claim of completed testing on that OS.
 
 The project retains its supplied debug signing configuration. Preserve the same signing key for updates; it is not a production release key. An existing installation signed with your friend's different key will not accept an in-place update from this APK.
+
+
+## 1.0.2 — tall-screen menu boundaries
+
+The expanded projection exposed objects parked beyond the original 320×480 menu stage. UI meshes now use a scissor rectangle matching that stage. Edge-anchored HUD groups use the same anchor for their transform and clip; full-screen backgrounds and world geometry are not clipped. Scissor state is cleared between cameras and before world particle draws, so depth clears and subsequent passes remain full-screen. Original animation curves and hit coordinates are preserved.
+
+Verification: 16 unit tests pass, including seven screen dimensions from 320×480 through 1080×2520 and tablet/landscape sizes. Release build and Android lint complete successfully. Actual device rendering, cutout behavior, and transitions still require visual testing.

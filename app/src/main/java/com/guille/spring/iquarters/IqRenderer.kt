@@ -202,6 +202,7 @@ class IqRenderer(private val rt: IqRuntime, private val input: () -> List<IqTouc
     private class Item(val go: GObj, val sub: Int, val mat: MatInst, val model: M4, val depth: Float, val gpu: GpuMesh)
 
     private fun draw(gl: GL11) {
+        gl.glDisable(GL10.GL_SCISSOR_TEST)
         gl.glViewport(0, 0, width, height)
         val world = rt.world
         val cams = world.objects.filter { it.active && it.camera?.enabled == true }.sortedBy { it.camera!!.src.depth }
@@ -216,7 +217,8 @@ class IqRenderer(private val rt: IqRuntime, private val input: () -> List<IqTouc
 
     private fun drawCamera(gl: GL11, camGo: GObj, lights: List<GObj>) {
         val cam = camGo.camera!!.src
-        val layout = IqViewport(width, height)
+        val layout = rt.viewport
+        gl.glDisable(GL10.GL_SCISSOR_TEST)
         // The original game uses layers 8/12/13 for its UI cameras; world cameras
         // include the default layer. Retain authored UI proportions on every screen.
         val uiCamera = cam.orthographic || (cam.cullingMask and 1 == 0)
@@ -277,6 +279,7 @@ class IqRenderer(private val rt: IqRuntime, private val input: () -> List<IqTouc
         }
         late.sortByDescending { it.first }
         for ((_, draw) in late) draw()
+        gl.glDisable(GL10.GL_SCISSOR_TEST)
     }
 
     private var particleCap = 0
@@ -295,6 +298,7 @@ class IqRenderer(private val rt: IqRuntime, private val input: () -> List<IqTouc
      * Only a 1x1 UV tile is drawn, which is all `GlassFlash` uses.
      */
     private fun drawParticles(gl: GL11, ps: Particles, view: M4, camRot: Quat) {
+        gl.glDisable(GL10.GL_SCISSOR_TEST)
         val r = ps.src.renderer ?: return
         if (r.material < 0) return
         val mat = pack.materials[r.material]
@@ -371,34 +375,44 @@ class IqRenderer(private val rt: IqRuntime, private val input: () -> List<IqTouc
         return g
     }
 
+    private fun uiAnchor(go: GObj): IqViewport.Anchor {
+        var node: GObj? = go
+        while (node != null) {
+            IqViewport.anchor(node.name)?.let { return it }
+            node = node.parent
+        }
+        return IqViewport.Anchor.CENTER
+    }
+
     /** Match the base iOS anchor wrappers without changing original animation curves. */
     private fun adaptUi(go: GObj, modelView: M4): M4 {
         if (!drawingUi) return modelView
-        val v=rt.viewport
-        val unit=200f/480f
-        if (go.name == "BackDrop" || go.name == "backdrop") {
-            return M4.scale(V3(1+v.extraX/160f,1+v.extraY/240f,1f))*modelView
+        val v = rt.viewport
+        if (IqViewport.fullScreenBackground(go.name)) {
+            return M4.scale(V3(1 + v.extraX / 160f, 1 + v.extraY / 240f, 1f)) * modelView
         }
-        var node:GObj?=go
-        while(node!=null) {
-            val offset=when(node.name) {
-                "ui_ingame_3coin_hold","ui_ingame_3coin_root" -> V3(-v.extraX*unit,v.extraY*unit,0f)
-                "ui_ingame_angle_root","ex_round_mon" -> V3(v.extraX*unit,v.extraY*unit,0f)
-                "UI_pause" -> V3(v.extraX*unit,-v.extraY*unit,0f)
-                "UI_ingame_player","exciter_in_a_row" -> V3(0f,v.extraY*unit,0f)
-                "RicochetParent","ui_richochet_score" -> V3(0f,-v.extraY*unit,0f)
-                else -> null
-            }
-            if(offset!=null)return M4.trs(offset,Quat.IDENTITY,V3(1f,1f,1f))*modelView
-            node=node.parent
+        val anchor = uiAnchor(go)
+        if (anchor == IqViewport.Anchor.CENTER) return modelView
+        val unit = 200f / 480f
+        val offset = V3(anchor.x * v.extraX * unit, anchor.y * v.extraY * unit, 0f)
+        return M4.trs(offset, Quat.IDENTITY, V3(1f, 1f, 1f)) * modelView
+    }
+
+    private fun clipUi(gl: GL11, go: GObj) {
+        if (!drawingUi || IqViewport.fullScreenBackground(go.name)) {
+            gl.glDisable(GL10.GL_SCISSOR_TEST)
+            return
         }
-        return modelView
+        val clip = rt.viewport.clip(uiAnchor(go))
+        gl.glEnable(GL10.GL_SCISSOR_TEST)
+        gl.glScissor(clip.left, clip.bottom, clip.width, clip.height)
     }
 
     private fun isTransparent(shader: String) =
         shader.startsWith("Transparent/") || shader == "iPhone Transparent Vertex Color" || shader.startsWith("Particles/")
 
     private fun drawItem(gl: GL11, item: Item, view: M4, lights: List<GObj>) {
+        clipUi(gl, item.go)
         val mesh = item.gpu
         val mat = item.mat
         val src = mat.src
